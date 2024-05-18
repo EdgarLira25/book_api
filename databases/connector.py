@@ -39,9 +39,9 @@ class DB:
         for id_ in id_list:
             self.cursor.execute(
                 f"""SELECT ID, Title,Series,Author, 
-                                  Year,Edition,Publisher,Pages,Language,Identifier,
-                                  Filesize,MD5,Coverurl
-                                  FROM books WHERE ID = {id_};"""
+                    Year,Edition,Publisher,Pages,Language,Identifier,
+                    Filesize,MD5,Coverurl
+                    FROM books WHERE ID = {id_};"""
             )
 
             resp: dict[Books] = self.cursor.fetchone()
@@ -62,9 +62,9 @@ class DB:
 
         self.cursor.execute(
             f"""SELECT ID, Title,Series,Author, 
-                            Year,Edition,Publisher,Pages,Language,Identifier,
-                            Filesize,MD5,Coverurl 
-                            FROM books WHERE ID = {id_};"""
+                Year,Edition,Publisher,Pages,Language,Identifier,
+                Filesize,MD5,Coverurl 
+                FROM books WHERE ID = {id_};"""
         )
 
         resp: dict[Books] = self.cursor.fetchone()
@@ -78,7 +78,10 @@ class DB:
     def select_topics(self):
 
         self.cursor.execute(
-            f"""select topic_id_hl, topic_descr from topics where lang = 'en' and topic_id in (SELECT topic_id_hl FROM topics group by topic_id_hl);"""
+            f"""select topic_id_hl, topic_descr 
+                from topics 
+                where lang = 'en' and topic_id 
+                    in (SELECT topic_id_hl FROM topics group by topic_id_hl);"""
         )
 
         resp: dict[Topics] = self.cursor.fetchall()
@@ -87,7 +90,10 @@ class DB:
     def select_subtopics(self, id_: int):
 
         self.cursor.execute(
-            f"""select topic_descr from topics where topic_id_hl = {id_} and lang = 'en' and topic_id_hl != topic_id;"""
+            f"""select topic_descr 
+                from topics 
+                where topic_id_hl = {id_} 
+                    and lang = 'en' and topic_id_hl != topic_id;"""
         )
         resp: list[Topics] = self.cursor.fetchall()
 
