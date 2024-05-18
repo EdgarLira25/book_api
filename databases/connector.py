@@ -1,6 +1,7 @@
 import mysql.connector
-from databases.model import Topics, Updated, Description
+from databases.model import Topics, Books, Description
 import os
+
 
 class DB:
 
@@ -43,13 +44,19 @@ class DB:
                                   FROM books WHERE ID = {id_};"""
             )
 
-            resp: dict[Updated] = self.cursor.fetchone()
+            resp: dict[Books] = self.cursor.fetchone()
             resp["MD5"] = self._update_md5(resp.get("MD5", ""))
             resp["Coverurl"] = self._update_coverurl(resp.get("Coverurl", ""))
 
             list_resp.append(resp)
 
         return list_resp
+
+    def _select_description(self, md5) -> str:
+
+        self.cursor.execute(f"SELECT descr FROM description WHERE md5 = '{md5}';")
+        response: dict[Description] = self.cursor.fetchone()
+        return bytes.decode(response.get("descr", ""), encoding="UTF-8")
 
     def select_by_id(self, id_):
 
@@ -60,17 +67,9 @@ class DB:
                             FROM books WHERE ID = {id_};"""
         )
 
-        resp: dict[Updated] = self.cursor.fetchone()
+        resp: dict[Books] = self.cursor.fetchone()
 
-        md5 = resp.get("MD5")
-        self.cursor.execute(f"SELECT descr FROM description WHERE md5 = '{md5}';")
-
-        descr = self.cursor.fetchone()
-
-        if descr == None:
-            descr = {"descr": ""}
-
-        resp.update(descr)
+        resp["descr"] = self._select_description(resp.get("MD5"))
         resp["MD5"] = self._update_md5(resp.get("MD5", ""))
         resp["Coverurl"] = self._update_coverurl(resp.get("Coverurl", ""))
 
@@ -82,7 +81,7 @@ class DB:
             f"""select topic_id_hl, topic_descr from topics where lang = 'en' and topic_id in (SELECT topic_id_hl FROM topics group by topic_id_hl);"""
         )
 
-        resp: dict = self.cursor.fetchall()
+        resp: dict[Topics] = self.cursor.fetchall()
         return resp
 
     def select_subtopics(self, id_: int):
@@ -90,7 +89,7 @@ class DB:
         self.cursor.execute(
             f"""select topic_descr from topics where topic_id_hl = {id_} and lang = 'en' and topic_id_hl != topic_id;"""
         )
-        resp: list[dict] = self.cursor.fetchall()
+        resp: list[Topics] = self.cursor.fetchall()
 
         for item in resp:
             item["topic_descr"] = self._formatter_subtopics(item.get("topic_descr"))

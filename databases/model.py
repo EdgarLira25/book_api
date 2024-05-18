@@ -1,8 +1,8 @@
 from typing import NamedTuple
 from datetime import datetime
-			
 
-class Updated(NamedTuple):
+
+class Books(NamedTuple):
     ID: int
     Author: str
     Coverurl: str

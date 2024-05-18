@@ -9,7 +9,15 @@ class SolrRequester:
     endpoint = "query"
     page_size = 12
 
-    def __init__(self, core: Literal["books_title", "books_author", "books_filters", "books_isbn", "fiction_title", "fiction_author", "fiction_filters", "fiction_isbn"]) -> None:
+    def __init__(
+        self,
+        core: Literal[
+            "books_title",
+            "books_author",
+            "books_filters",
+            "books_isbn",
+        ],
+    ) -> None:
         self.core = core
 
     def request_query(
@@ -30,7 +38,7 @@ class SolrRequester:
         response = requests.get(url, params=params).json()
 
         solr_list = []
-        pages = response.get("response").get("numFound",0)//self.page_size
+        pages = response.get("response").get("numFound", 0) // self.page_size
         for dicionary in response.get("response")["docs"]:
             solr_list.append(json.loads(dicionary.get("_src_")).get("ID"))
 
