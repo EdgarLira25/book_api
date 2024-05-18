@@ -5,7 +5,6 @@ import os
 class DB:
 
     def __init__(self) -> None:
-        print(os.environ.get("PASSWORD"))
         self.con = mysql.connector.connect(
             host="localhost",
             database="lib",
