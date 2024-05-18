@@ -6,6 +6,7 @@ import os
 class DB:
 
     def __init__(self) -> None:
+        self.img_default = "https://encrypted-tbn1.gstatic.com/images?q=tbn:ANd9GcRheXK2LAz36tgp5K8LuaSaab_vj_tQmi1J8zv6qe4IhFykh_Sz"
         self.con = mysql.connector.connect(
             host="localhost",
             database="lib",
@@ -17,11 +18,19 @@ class DB:
         self.cursor = self.con.cursor(dictionary=True)
 
     def _update_coverurl(self, cover: str):
+        
+        if cover == None or cover == "":
+            return self.img_default
+
         base = "https://library.lol/covers/"
 
         return base + cover
 
     def _update_md5(self, md5: str):
+
+        if md5 == None or md5 == "":
+            return self.img_default
+
         base = "https://library.lol/main/"
 
         return base + md5
