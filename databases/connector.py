@@ -18,7 +18,7 @@ class DB:
         self.cursor = self.con.cursor(dictionary=True)
 
     def _update_coverurl(self, cover: str):
-        
+
         if cover == None or cover == "":
             return self.img_default
 
@@ -35,6 +35,19 @@ class DB:
 
         return base + md5
 
+    def _update_topic(self, topic_id) -> dict:
+        if topic_id == 0 or topic_id == "":
+            return "Tópico Não Encontrado"
+
+        self.cursor.execute(
+            f"SELECT topic_descr from topics where lang = 'en' and topic_id = {topic_id};"
+        )
+        resp: dict = self.cursor.fetchone()
+
+        topic: str = resp.get("topic_descr", "Tópico Não Encontrado")
+        topic = topic.replace("\\\\", " -> ")
+        return topic
+
     def _formatter_subtopics(self, string: str):
         lista_string = string.split("\\\\")
         try:
@@ -49,11 +62,13 @@ class DB:
             self.cursor.execute(
                 f"""SELECT ID, Title,Series,Author, 
                     Year,Edition,Publisher,Pages,Language,Identifier,
-                    Filesize,MD5,Coverurl
+                    Filesize,MD5,Coverurl,Topic
                     FROM books WHERE ID = {id_};"""
             )
 
             resp: dict[Books] = self.cursor.fetchone()
+
+            resp["Topic"] = self._update_topic(resp.get("Topic", 0))
             resp["MD5"] = self._update_md5(resp.get("MD5", ""))
             resp["Coverurl"] = self._update_coverurl(resp.get("Coverurl", ""))
 
@@ -65,6 +80,8 @@ class DB:
 
         self.cursor.execute(f"SELECT descr FROM description WHERE md5 = '{md5}';")
         response: dict[Description] = self.cursor.fetchone()
+        if response == None:
+            return ""
         return bytes.decode(response.get("descr", ""), encoding="UTF-8")
 
     def select_by_id(self, id_):
@@ -72,12 +89,12 @@ class DB:
         self.cursor.execute(
             f"""SELECT ID, Title,Series,Author, 
                 Year,Edition,Publisher,Pages,Language,Identifier,
-                Filesize,MD5,Coverurl 
+                Filesize,MD5,Coverurl,Topic
                 FROM books WHERE ID = {id_};"""
         )
 
         resp: dict[Books] = self.cursor.fetchone()
-
+        resp["Topic"] = self._update_topic(resp.get("Topic", 0))
         resp["descr"] = self._select_description(resp.get("MD5"))
         resp["MD5"] = self._update_md5(resp.get("MD5", ""))
         resp["Coverurl"] = self._update_coverurl(resp.get("Coverurl", ""))
