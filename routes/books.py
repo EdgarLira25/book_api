@@ -1,13 +1,13 @@
-from flask import jsonify, Blueprint
+from flask import Response, jsonify, Blueprint
 from controllers.books import BooksController
-
+from typing import Literal
 books_blueprint = Blueprint("books", __name__)
 
 
 @books_blueprint.route(
     "/book/<string:core_type>/<string:query>/<int:page>", methods=["GET"]
 )
-def query_books(core_type: str, query: str, page: int) -> list[dict]:
+def query_books(core_type: Literal["title", "author", "filters", "isbn"], query: str, page: int) -> tuple[Response, int]:
     controller = BooksController(core="books_" + core_type)
     response, pages = controller.books_query(query, page)
 
@@ -15,7 +15,7 @@ def query_books(core_type: str, query: str, page: int) -> list[dict]:
 
 
 @books_blueprint.route("/book/<int:id>", methods=["GET"])
-def query_book_by_id(id: int) -> dict:
+def query_book_by_id(id: int) -> tuple[Response, int]:
     controller = BooksController()
     response = controller.book_by_id(id)
 

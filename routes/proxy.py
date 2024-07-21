@@ -1,4 +1,4 @@
-from flask import request, send_file, Blueprint, Flask, jsonify
+from flask import request, send_file, Blueprint
 import requests
 from io import BytesIO
 from threading import Thread

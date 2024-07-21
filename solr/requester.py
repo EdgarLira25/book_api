@@ -4,19 +4,13 @@ import json
 
 
 class SolrRequester:
-
     base_url = "http://127.0.0.1:8983/solr/"
     endpoint = "query"
     page_size = 12
 
     def __init__(
         self,
-        core: Literal[
-            "books_title",
-            "books_author",
-            "books_filters",
-            "books_isbn",
-        ],
+        core: Literal["books_title", "books_author", "books_filters", "books_isbn", ""],
     ) -> None:
         self.core = core
 
@@ -24,7 +18,7 @@ class SolrRequester:
         self,
         text: str,
         page: int,
-    ) -> list[dict]:
+    ) -> tuple[list[dict], int]:
         params = {
             "q": text,
             "q.op": "OR",
